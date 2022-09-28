@@ -14,7 +14,6 @@ function createData(name, calories, fat, carbs, protein) {
   return { name, calories, fat, carbs, protein };
 }
 
-
 const rows = [
   createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
   createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
@@ -24,12 +23,23 @@ const rows = [
 ];
 
 export default function ContactList() {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ mode: "onChange" });
 
-  const {register} = useForm();
+  const postContacts = async (data) => {
+    console.log(data);
+  }
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const [addOpen, setAddOpen] = useState(false);
+  const addHandleOpen = () => setAddOpen(true);
+  const addHandleClose = () => setAddOpen(false);
 
   const style = {
     position: "absolute",
@@ -47,14 +57,62 @@ export default function ContactList() {
     <>
       <TableContainer component={Paper}>
         <h2>직원 비상 연락망</h2>
+        <button onClick={addHandleOpen}>
+          비상 연락망 추가
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"
+            />
+          </svg>
+        </button>
+        <Modal
+          open={addOpen}
+          onClose={addHandleClose}
+          aria-labelledby="modal-modal-title"
+          aria-describedby="modal-modal-description"
+        >
+          <Box sx={style}>
+            <Typography id="modal-modal-title" variant="h6" component="h2">
+              <form>
+                <h4>직원 비상 연락망 추가</h4>
+                <label>직위·직책</label>
+                <input {...register("role", { required: true })} /> <br />
+                <label>성명</label>
+                <input {...register("name", { required: true })} />
+                <br />
+                <label>전화번호</label>
+                <input {...register("tel", { required: true })} />
+                <br />
+                <label>이메일</label>
+                <input {...register("email", { required: true })} />
+                <br />
+                <label>생년월일</label>
+                <input {...register("birth", { required: true })} />
+              </form>
+            </Typography>
+            <button onClick={addHandleClose}>닫기</button>
+            {/* 추가하기 클릭하면 submit */}
+            <button type="submit">추가하기</button>
+          </Box>
+        </Modal>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Dessert (100g serving)</TableCell>
-              <TableCell>Calories</TableCell>
-              <TableCell>Fat&nbsp;(g)</TableCell>
-              <TableCell>Carbs&nbsp;(g)</TableCell>
-              <TableCell>Protein&nbsp;(g)</TableCell>
+              <TableCell>번호</TableCell>
+              <TableCell>직위·직책</TableCell>
+              <TableCell>성명</TableCell>
+              <TableCell>전화번호</TableCell>
+              <TableCell>이메일</TableCell>
+              <TableCell>생년월일</TableCell>
               <TableCell>수정하기</TableCell>
               <TableCell>삭제하기</TableCell>
             </TableRow>
@@ -68,12 +126,12 @@ export default function ContactList() {
                 <TableCell component="th" scope="row">
                   {row.name}
                 </TableCell>
-                <TableCell align="right">{row.calories}</TableCell>
-                <TableCell align="right">{row.fat}</TableCell>
-                <TableCell align="right">{row.carbs}</TableCell>
-                <TableCell align="right">{row.protein}</TableCell>
+                <TableCell>{row.name}</TableCell>
+                <TableCell>{row.calories}</TableCell>
+                <TableCell>{row.fat}</TableCell>
+                <TableCell>{row.carbs}</TableCell>
+                <TableCell>{row.protein}</TableCell>
                 <TableCell>
-
                   {/* 수정하기 모달창 */}
                   <button
                     className="edit"
@@ -110,15 +168,19 @@ export default function ContactList() {
                         <form>
                           <h4>직원 비상 연락망 수정</h4>
                           <label>직위·직책</label>
-                          <input {...register("role", { required: true })} /> <br/>
+                          <input />
+                          <br />
                           <label>성명</label>
-                          <input {...register("name", { required: true })} /><br/>
+                          <input />
+                          <br />
                           <label>전화번호</label>
-                          <input {...register("tel", { required: true })} /><br/>
+                          <input />
+                          <br />
                           <label>이메일</label>
-                          <input {...register("email", { required: true })} /><br/>
+                          <input />
+                          <br />
                           <label>생년월일</label>
-                          <input {...register("birth", { required: true })} />
+                          <input />
                         </form>
                       </Typography>
                       <button onClick={handleClose}>닫기</button>
