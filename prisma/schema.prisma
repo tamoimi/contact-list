@@ -14,9 +14,9 @@ model Contact {
   id              Int             @id @default(autoincrement())
   role            String 
   name            String
-  tel             Int
+  tel             String
   email           String
-  birth           Int
+  birth           String
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt  
 }
