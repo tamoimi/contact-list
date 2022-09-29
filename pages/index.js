@@ -5,10 +5,11 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { Modal, Box } from "@mui/material";
-import Typography from "@mui/material/Typography";
+// import { Modal, Box } from "@mui/material";
+// import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import AddModal from "../components/addModal";
 
 function createData(name, calories, fat, carbs, protein) {
   return { name, calories, fat, carbs, protein };
@@ -23,87 +24,11 @@ const rows = [
 ];
 
 export default function ContactList() {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({ mode: "onChange" });
-
-  const postContacts = async (data) => {
-    console.log(data);
-  }
-
-  const [open, setOpen] = useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  const [addOpen, setAddOpen] = useState(false);
-  const addHandleOpen = () => setAddOpen(true);
-  const addHandleClose = () => setAddOpen(false);
-
-  const style = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 400,
-    bgcolor: "background.paper",
-    border: "none",
-    boxShadow: 24,
-    p: 4,
-  };
-
   return (
     <>
       <TableContainer component={Paper}>
         <h2>직원 비상 연락망</h2>
-        <button onClick={addHandleOpen}>
-          비상 연락망 추가
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"
-            />
-          </svg>
-        </button>
-        <Modal
-          open={addOpen}
-          onClose={addHandleClose}
-          aria-labelledby="modal-modal-title"
-          aria-describedby="modal-modal-description"
-        >
-          <Box sx={style}>
-            <Typography id="modal-modal-title" variant="h6" component="h2">
-              <form>
-                <h4>직원 비상 연락망 추가</h4>
-                <label>직위·직책</label>
-                <input {...register("role", { required: true })} /> <br />
-                <label>성명</label>
-                <input {...register("name", { required: true })} />
-                <br />
-                <label>전화번호</label>
-                <input {...register("tel", { required: true })} />
-                <br />
-                <label>이메일</label>
-                <input {...register("email", { required: true })} />
-                <br />
-                <label>생년월일</label>
-                <input {...register("birth", { required: true })} />
-              </form>
-            </Typography>
-            <button onClick={addHandleClose}>닫기</button>
-            {/* 추가하기 클릭하면 submit */}
-            <button type="submit">추가하기</button>
-          </Box>
-        </Modal>
+        <AddModal />
         <Table>
           <TableHead>
             <TableRow>
@@ -134,8 +59,8 @@ export default function ContactList() {
                 <TableCell>
                   {/* 수정하기 모달창 */}
                   <button
-                    className="edit"
-                    onClick={handleOpen}
+                    // className="edit"
+                    // onClick={handleOpen}
                     style={{ width: 35, margin: 15 }}
                   >
                     <svg
@@ -153,7 +78,7 @@ export default function ContactList() {
                       />
                     </svg>
                   </button>
-                  <Modal
+                  {/* <Modal
                     open={open}
                     onClose={handleClose}
                     aria-labelledby="modal-modal-title"
@@ -186,7 +111,7 @@ export default function ContactList() {
                       <button onClick={handleClose}>닫기</button>
                       <button onClick={handleClose}>수정하기</button>
                     </Box>
-                  </Modal>
+                  </Modal> */}
                 </TableCell>
 
                 {/* 삭제하기 모달창 */}
@@ -229,12 +154,16 @@ export default function ContactList() {
     text-align: center;
   }
   thead {
-    background: #D2DAFF;
+    background: #FCF8E8;
   }
   button {
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    background: #CEE5D0;
+  }
+  button:hover {
+    opacity: 0.7;
   }
   `}
       </style>
