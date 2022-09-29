@@ -9,21 +9,40 @@ import Paper from "@mui/material/Paper";
 // import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import AddModal from "../components/addModal";
-
-function createData(name, calories, fat, carbs, protein) {
-  return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
-  createData("Frozen yoghurt", 159, 6.0, 24, 4.0),
-  createData("Ice cream sandwich", 237, 9.0, 37, 4.3),
-  createData("Eclair", 262, 16.0, 24, 6.0),
-  createData("Cupcake", 305, 3.7, 67, 4.3),
-  createData("Gingerbread", 356, 16.0, 49, 3.9),
-];
+import AddModal from "../components/AddModal";
+import { useQuery } from "@tanstack/react-query";
+import EditModal from "../components/editModal";
 
 export default function ContactList() {
+  const getContacts = async () => {
+    const result = await (await fetch(`/api/contacts`)).json();
+    console.log(result);
+    return result;
+  };
+
+  const {
+    isLoading,
+    error,
+    data: contacts,
+  } = useQuery(["contacts"], getContacts);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedContactId, setSelectedContactId] = useState(0);
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
+  /**
+   * 업데이트 모달
+   */
+  const updateModalOpen = (contactId) => {
+    setSelectedContactId(contactId);
+    setIsModalOpen(true);
+    console.log(selectedContactId);
+  };
+
+  if (error) return "에러 발생" + error.message;
   return (
     <>
       <TableContainer component={Paper}>
@@ -43,24 +62,23 @@ export default function ContactList() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows.map((row) => (
+            {contacts?.map((contact) => (
               <TableRow
-                key={row.name}
+                key={contact.id}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell component="th" scope="row">
-                  {row.name}
+                  {contact.role}
                 </TableCell>
-                <TableCell>{row.name}</TableCell>
-                <TableCell>{row.calories}</TableCell>
-                <TableCell>{row.fat}</TableCell>
-                <TableCell>{row.carbs}</TableCell>
-                <TableCell>{row.protein}</TableCell>
+                <TableCell>{contact.name}</TableCell>
+                <TableCell>{contact.tel}</TableCell>
+                <TableCell>{contact.email}</TableCell>
+                <TableCell>{contact.birth}</TableCell>
                 <TableCell>
                   {/* 수정하기 모달창 */}
                   <button
                     // className="edit"
-                    // onClick={handleOpen}
+                    onClick={() => updateModalOpen(contact.id)}
                     style={{ width: 35, margin: 15 }}
                   >
                     <svg
@@ -78,40 +96,6 @@ export default function ContactList() {
                       />
                     </svg>
                   </button>
-                  {/* <Modal
-                    open={open}
-                    onClose={handleClose}
-                    aria-labelledby="modal-modal-title"
-                    aria-describedby="modal-modal-description"
-                  >
-                    <Box sx={style}>
-                      <Typography
-                        id="modal-modal-title"
-                        variant="h6"
-                        component="h2"
-                      >
-                        <form>
-                          <h4>직원 비상 연락망 수정</h4>
-                          <label>직위·직책</label>
-                          <input />
-                          <br />
-                          <label>성명</label>
-                          <input />
-                          <br />
-                          <label>전화번호</label>
-                          <input />
-                          <br />
-                          <label>이메일</label>
-                          <input />
-                          <br />
-                          <label>생년월일</label>
-                          <input />
-                        </form>
-                      </Typography>
-                      <button onClick={handleClose}>닫기</button>
-                      <button onClick={handleClose}>수정하기</button>
-                    </Box>
-                  </Modal> */}
                 </TableCell>
 
                 {/* 삭제하기 모달창 */}
@@ -143,6 +127,11 @@ export default function ContactList() {
             ))}
           </TableBody>
         </Table>
+        <EditModal
+          contactId={selectedContactId}
+          isModalOpenProp={isModalOpen}
+          closeModalFn={closeModal}
+        />
       </TableContainer>
       <style>
         {`
