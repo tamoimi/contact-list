@@ -7,25 +7,47 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 // import { Modal, Box } from "@mui/material";
 // import Typography from "@mui/material/Typography";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import AddModal from "../components/AddModal";
 import { useQuery } from "@tanstack/react-query";
 import EditModal from "../components/editModal";
-import { TableSortLabel } from "@mui/material";
+import { TableFooter, TablePagination, TableSortLabel } from "@mui/material";
 
 export default function ContactList() {
-  const getContacts = async () => {
-    const result = await (await fetch(`/api/contacts`)).json();
-    console.log(result);
-    return result;
+  // pagination
+  const [totalCount, setTotalCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const pageChangeHandler = (event, pageNumber) => {
+    console.log(pageNumber);
+    setCurrentPage(pageNumber);
   };
+
+  const rowsPerPageChangeHandler = (v) => {
+    setRowsPerPage(v);
+  };
+  const getContacts = async (pageCount, rowsCount) => {
+    // console.log(pageCount, rowsCount);
+    const result = await (
+      await fetch(
+        `/api/contacts?currentPage=${currentPage}&rowsPerPage=${rowsPerPage}`,
+        { method: "GET" }
+      )
+    ).json();
+    setTotalCount(result.totalCount);
+    return result.result;
+  };
+
+  // useEffect(() => {
+  //   getContacts(currentPage, rowsPerPage);
+  // }, [currentPage, rowsPerPage]);
 
   const {
     isLoading,
     error,
     data: contacts,
-  } = useQuery(["contacts"], getContacts);
+  } = useQuery(["contacts", currentPage], getContacts);
 
   const [selectedData, setSelectedData] = useState({
     isModalOpen: false,
@@ -108,8 +130,6 @@ export default function ContactList() {
       sortOrder: newSortOrder,
     });
   };
-
-  // pagination 
 
   if (error) return "에러 발생" + error.message;
   return (
@@ -244,32 +264,41 @@ export default function ContactList() {
               </TableRow>
             ))}
           </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                count={totalCount}
+                rowsPerPage={rowsPerPage}
+                page={currentPage}
+                onPageChange={pageChangeHandler}
+                onRowsPerPageChange={rowsPerPageChangeHandler}
+              />
+            </TableRow>
+          </TableFooter>
         </Table>
         <EditModal selectedData={selectedData} closeModalFn={closeModal} />
       </TableContainer>
-      <style>
-        {`
-  .MuiPaper-root {
-    width: 1000px;
-    margin: 50px auto;
-  }
-  h2 {
-    text-align: center;
-  }
-  thead {
-    background: #FCF8E8;
-  }
-  button {
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    background: #CEE5D0;
-  }
-  button:hover {
-    opacity: 0.7;
-  }
-  `}
-      </style>
+      <style>{`
+        .MuiPaper-root {
+          width: 1000px;
+          margin: 50px auto;
+        }
+        h2 {
+          text-align: center;
+        }
+        thead {
+          background: #fcf8e8;
+        }
+        button {
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+          background: #cee5d0;
+        }
+        button:hover {
+          opacity: 0.7;
+        }
+      `}</style>
     </>
   );
 }
