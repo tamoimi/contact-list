@@ -37,4 +37,43 @@ export default async function handler(req, res) {
     });
     res.status(200).json(result);
   }
+
+  if (req.method === "PUT") {
+    console.log("api put 호출됨!");
+    const {
+      body: {
+        data: { id, role, name, tel, email, birth },
+      },
+    } = req;
+
+    console.log("api input id = ", id);
+
+    const result = await client.contact.update({
+      data: {
+        role,
+        name,
+        tel,
+        email,
+        birth,
+      },
+      where: {
+        id: +id,
+      },
+    });
+    res.status(200).json(result);
+  }
+
+  if (req.method === "DELETE") {
+    console.log("api delete 호출됨!");
+    const {
+      body: { id },
+    } = req;
+
+    const result = await client.contact.delete({
+      where: {
+        id: parseInt(id),
+      },
+    });
+    res.status(200).json(result);
+  }
 }
