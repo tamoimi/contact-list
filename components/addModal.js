@@ -3,6 +3,7 @@ import Typography from "@mui/material/Typography";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
+import { fontFamily } from "@mui/system";
 
 export default function AddModal() {
   const {
@@ -12,7 +13,7 @@ export default function AddModal() {
   } = useForm({ mode: "onChange" });
 
   const postContacts = async (data) => {
-    console.log(data);
+    console.log("data", data);
     const response = await (
       await fetch("/api/contacts", {
         method: "POST",
@@ -44,27 +45,19 @@ export default function AddModal() {
     p: 4,
     borderRadius: 4,
   };
+
+  //data를 가져와야함! 
+  const submitHandler = (data) => {
+    alert("정상적으로 요청되었습니다");
+    postContacts(data);
+    console.log(postContacts);
+  };
+
   return (
     <>
-      <container>
-        <button onClick={addHandleOpen} className="add-contact">
-          비상 연락망 추가
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"
-            />
-          </svg>
-        </button>
-      </container>
+      <button onClick={addHandleOpen} className="add-contact">
+        <span>비상 연락망 추가</span>
+      </button>
       <Modal
         open={addOpen}
         onClose={addHandleClose}
@@ -73,7 +66,7 @@ export default function AddModal() {
       >
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h7" component="h2">
-            <form onSubmit={handleSubmit(postContacts)}>
+            <form onSubmit={handleSubmit(submitHandler)}>
               <h4>직원 비상 연락망 추가</h4>
               <label>직위·직책</label>
               <input
@@ -129,18 +122,11 @@ export default function AddModal() {
                 placeholder="주민번호 앞 6자를 입력해주세요."
               />
               {errors.birth && <p>{errors.birth.message}</p>}
-              <button onClick={addHandleClose} className="close">
+              <button type="button" onClick={addHandleClose} className="close">
                 닫기
               </button>
               {/* 추가하기 클릭하면 submit */}
-              <button
-                type="submit"
-                className="add"
-                onClick={() => {
-                  alert("추가 했습니다.");
-                onClick={getContacts}
-                }}
-              >
+              <button type="submit" className="add">
                 추가하기
               </button>
             </form>
@@ -148,48 +134,50 @@ export default function AddModal() {
         </Box>
       </Modal>
       <style jsx>{`
-          form {
-            width: 400px;
-            margin: 0 auto;
-          }
-          label {
-            display: inline-block;
-            width: 100px;
-            text-align: left;
-            font-size: 18px;
-            font-weight: bold;
-          }
-          input {
-            width: 230px;
-            height: 30px;
-            margin: 10px 0;
-            padding: 0 10px;
-            border: none;
-            background: #fcf8e8;
-          }
-          .close,
-          .add {
-            width: 100px;
-            height: 40px;
-            margin: 40px 30px;
-          }
-          .add {
-            background: #ecb390;
-          }
-          p {
-            margin: 0;
-            font-size: 12px;
-            color: tomato;
-          }
-          .add-contact {
-            width: 100px;
-          }
-          .container {
-            width: 100%;
-            height: 300px;
-            text-align: right;
-          }
-        `}</style>
+        form {
+          width: 400px;
+          margin: 0 auto;
+        }
+        label {
+          display: inline-block;
+          width: 100px;
+          text-align: left;
+          font-size: 18px;
+          font-weight: bold;
+        }
+        input {
+          width: 230px;
+          height: 30px;
+          margin: 10px 0;
+          padding: 0 10px;
+          border: none;
+          background: #fcf8e8;
+        }
+        .close,
+        .add {
+          width: 100px;
+          height: 40px;
+          margin: 40px 30px;
+        }
+        .add {
+          background: #ecb390;
+        }
+        p {
+          margin: 0;
+          font-size: 12px;
+          color: tomato;
+        }
+        .add-contact {
+          width: 150px;
+          height: 60px;
+          line-height: 60px;
+        }
+        .container {
+          width: 100%;
+          height: 300px;
+          text-align: right;
+        }
+      `}</style>
     </>
   );
 }
