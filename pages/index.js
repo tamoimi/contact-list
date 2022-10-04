@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 import AddModal from "../components/AddModal";
 import { useQuery } from "@tanstack/react-query";
 import EditModal from "../components/editModal";
+import { TableSortLabel } from "@mui/material";
 
 export default function ContactList() {
   const getContacts = async () => {
@@ -26,21 +27,89 @@ export default function ContactList() {
     data: contacts,
   } = useQuery(["contacts"], getContacts);
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedContactId, setSelectedContactId] = useState(0);
+  const [selectedData, setSelectedData] = useState({
+    isModalOpen: false,
+    selectedContact: {},
+  });
 
   const closeModal = () => {
-    setIsModalOpen(false);
+    setSelectedData({
+      isModalOpen: false,
+      selectedContact: {},
+    });
   };
 
-  /**
-   * 업데이트 모달
-   */
-  const updateModalOpen = (contactId) => {
-    setSelectedContactId(contactId);
-    setIsModalOpen(true);
-    console.log(selectedContactId);
+  /* 업데이트 모달 */
+  const updateModalOpen = (contact) => {
+    setSelectedData((prev) => {
+      return {
+        isModalOpen: true,
+        selectedContact: contact,
+      };
+    });
   };
+
+  /* 삭제하기 */
+  const delContact = async (contactId) => {
+    const response = await (
+      await fetch(`/api/contacts`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: contactId,
+        }),
+      })
+    ).json();
+    console.log(response);
+    window.location.reload();
+  };
+
+  // sorting
+  const [orderState, setOrderState] = useState({
+    sortBy: "id",
+    sortOrder: "asc",
+  });
+
+  const compareFunction = (a, b, sortBy, sortOrder) => {
+    if (a[sortBy] < b[sortBy]) {
+      return sortOrder === "asc" ? -1 : 1;
+    } else if (a[sortBy] > b[sortBy]) {
+      return sortOrder === "asc" ? 1 : -1;
+    } else {
+      return 0;
+    }
+  };
+
+  const requestSort = (sortByProp) => {
+    console.log("sortByProp", sortByProp);
+    const { sortBy: oldSortBy, sortOrder: oldSortOrder } = orderState;
+
+    let newSortOrder = oldSortOrder;
+    let newSortBy = oldSortBy;
+    let newData;
+
+    //props로 절달된 정렬기준이 state에 저장된 정렬기준과 같은지에 따라 분기
+    if (sortByProp === oldSortBy) {
+      //같다면 정렬순서만 변경
+      newSortOrder = oldSortOrder === "asc" ? "desc" : "asc";
+    } else {
+      //다르면 새 정렬기준을 state에 저장하고, 정렬순서는 asc로 설정한다.
+      newSortBy = sortByProp;
+      newSortOrder = "asc";
+    }
+    console.log("newSortOrder", newSortOrder);
+    console.log("newSortBy", newSortBy);
+    newData = contacts.sort((a, b) =>
+      compareFunction(a, b, newSortBy, newSortOrder)
+    );
+    console.log(newData);
+    setOrderState({
+      sortBy: newSortBy,
+      sortOrder: newSortOrder,
+    });
+  };
+
+  // pagination 
 
   if (error) return "에러 발생" + error.message;
   return (
@@ -51,12 +120,60 @@ export default function ContactList() {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>번호</TableCell>
-              <TableCell>직위·직책</TableCell>
-              <TableCell>성명</TableCell>
-              <TableCell>전화번호</TableCell>
-              <TableCell>이메일</TableCell>
-              <TableCell>생년월일</TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderState.sortBy === "id"}
+                  direction={orderState.sortOrder}
+                  onClick={() => requestSort("id")}
+                >
+                  번호
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderState.sortBy === "role"}
+                  direction={orderState.sortOrder}
+                  onClick={() => requestSort("role")}
+                >
+                  직위·직책
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderState.sortBy === "name"}
+                  direction={orderState.sortOrder}
+                  onClick={() => requestSort("name")}
+                >
+                  성명
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderState.sortBy === "tel"}
+                  direction={orderState.sortOrder}
+                  onClick={() => requestSort("tel")}
+                >
+                  전화번호
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderState.sortBy === "email"}
+                  direction={orderState.sortOrder}
+                  onClick={() => requestSort("email")}
+                >
+                  이메일
+                </TableSortLabel>
+              </TableCell>
+              <TableCell>
+                <TableSortLabel
+                  active={orderState.sortBy === "birth"}
+                  direction={orderState.sortOrder}
+                  onClick={() => requestSort("birth")}
+                >
+                  생년월일
+                </TableSortLabel>
+              </TableCell>
               <TableCell>수정하기</TableCell>
               <TableCell>삭제하기</TableCell>
             </TableRow>
@@ -68,8 +185,9 @@ export default function ContactList() {
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
                 <TableCell component="th" scope="row">
-                  {contact.role}
+                  {contact.id}
                 </TableCell>
+                <TableCell>{contact.role}</TableCell>
                 <TableCell>{contact.name}</TableCell>
                 <TableCell>{contact.tel}</TableCell>
                 <TableCell>{contact.email}</TableCell>
@@ -78,7 +196,7 @@ export default function ContactList() {
                   {/* 수정하기 모달창 */}
                   <button
                     // className="edit"
-                    onClick={() => updateModalOpen(contact.id)}
+                    onClick={() => updateModalOpen(contact)}
                     style={{ width: 35, margin: 15 }}
                   >
                     <svg
@@ -98,13 +216,13 @@ export default function ContactList() {
                   </button>
                 </TableCell>
 
-                {/* 삭제하기 모달창 */}
+                {/* 삭제하기 */}
                 <TableCell>
                   <button
                     className="delete"
                     style={{ width: 35, margin: 15 }}
                     onClick={() => {
-                      delStudents(student.id);
+                      delContact(contact.id);
                     }}
                   >
                     <svg
@@ -127,11 +245,7 @@ export default function ContactList() {
             ))}
           </TableBody>
         </Table>
-        <EditModal
-          contactId={selectedContactId}
-          isModalOpenProp={isModalOpen}
-          closeModalFn={closeModal}
-        />
+        <EditModal selectedData={selectedData} closeModalFn={closeModal} />
       </TableContainer>
       <style>
         {`
