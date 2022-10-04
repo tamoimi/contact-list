@@ -24,19 +24,19 @@ export default async function handler(req, res) {
     res.status(200).json(result);
   }
 
-  if (req.method === "GET") {
-    const result = await client.contact.findMany({
-      select: {
-        id: true,
-        role: true,
-        name: true,
-        tel: true,
-        email: true,
-        birth: true,
-      },
-    });
-    res.status(200).json(result);
-  }
+  // if (req.method === "GET") {
+  //   const result = await client.contact.findMany({
+  //     select: {
+  //       id: true,
+  //       role: true,
+  //       name: true,
+  //       tel: true,
+  //       email: true,
+  //       birth: true,
+  //     },
+  //   });
+  //   res.status(200).json(result);
+  // }
 
   if (req.method === "PUT") {
     console.log("api put 호출됨!");
@@ -75,5 +75,18 @@ export default async function handler(req, res) {
       },
     });
     res.status(200).json(result);
+  }
+
+  if (req.method === "GET") {
+    console.log("get 호출!");
+
+    const { currentPage, rowsPerPage } = req.query;
+
+    const skipNumber = currentPage * 10;
+    const take = +rowsPerPage;
+    const result = await client.contact.findMany({ skip: skipNumber, take });
+    const totalCount = await client.contact.count();
+
+    res.status(200).json({ result: result, totalCount: totalCount });
   }
 }
